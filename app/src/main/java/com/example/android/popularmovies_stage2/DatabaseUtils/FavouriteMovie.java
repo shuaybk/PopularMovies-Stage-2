@@ -4,6 +4,8 @@ import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
+import com.example.android.popularmovies_stage2.Movie;
+
 @Entity(tableName = "favouriteMovie")
 public class FavouriteMovie {
 
@@ -63,6 +65,11 @@ public class FavouriteMovie {
     }
     public void setReleaseDate(String releaseDate) {
         this.releaseDate = releaseDate;
+    }
+
+    @Ignore
+    public Movie toMovie() {
+        return new Movie(this.id, this.title, this.poster, this.description, this.rating, this.releaseDate);
     }
 
 }
