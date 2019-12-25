@@ -1,5 +1,6 @@
 package com.example.android.popularmovies_stage2.DatabaseUtils;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -16,7 +17,7 @@ import java.util.List;
 public interface FavouriteMovieDao {
 
     @Query("SELECT * FROM favouriteMovie")
-    List<FavouriteMovie> loadAllFavMovies();
+    LiveData<List<FavouriteMovie>> loadAllFavMovies();
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertFavMovie(FavouriteMovie favouriteMovie);

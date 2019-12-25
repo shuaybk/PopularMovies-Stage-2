@@ -18,9 +18,6 @@ public abstract class AppDatabase extends RoomDatabase {
             synchronized (LOCK) {
                 sInstance = Room.databaseBuilder(context.getApplicationContext(),
                         AppDatabase.class, AppDatabase.DATABASE_NAME)
-                        ///REMOVE THIS, ITS FOR TESTING ONLY
-                        //MAKE THE DATABASE QUERIES ON A SEPARATE THREAD FOR FINAL VERSION
-                        .allowMainThreadQueries()
                         .build();
             }
         }

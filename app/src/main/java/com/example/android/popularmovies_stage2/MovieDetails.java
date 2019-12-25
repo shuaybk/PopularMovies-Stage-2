@@ -3,6 +3,7 @@ package com.example.android.popularmovies_stage2;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -48,11 +49,6 @@ public class MovieDetails extends AppCompatActivity {
         mDescription.setText(movie.getDescription());
         mRating.setText("Avg User Rating: " + movie.getRating() + "%");
         mRelease.setText("Release Date: " + movie.getReleaseDate());
-
-
-        if (isFavourite()) {
-            Toast.makeText(this, "Omg i love this movie!!!", Toast.LENGTH_SHORT).show();
-        }
     }
 
 
@@ -63,7 +59,7 @@ public class MovieDetails extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.details_menu, menu);
         this.menu = menu;
-        setIcon();
+        refreshFavourite();
         return true;
     }
 
@@ -81,43 +77,58 @@ public class MovieDetails extends AppCompatActivity {
 
     //Helper method to toggle this movie as favourited/unfavourited
     private void toggleFavourite() {
+
         if (movie != null) {
-            FavouriteMovie favouriteMovie = new FavouriteMovie(movie.getId(), movie.getTitle(), movie.getPoster(),
-                    movie.getDescription(), movie.getRating(), movie.getReleaseDate());
 
-            if (isFavourite()) {
-                //Remove from favourites
-                mDb.favouriteMovieDao().deleteFavMovie(favouriteMovie);
-            } else {
-                //Add to favourites
-                mDb.favouriteMovieDao().insertFavMovie(favouriteMovie);
-            }
-            setIcon();
+            new AsyncTask<Integer, Void, Boolean>() {
+                @Override
+                protected Boolean doInBackground(Integer... integers) {
+                    FavouriteMovie favouriteMovie = mDb.favouriteMovieDao().getFavMovieById(integers[0]);
+                    if (favouriteMovie != null) {
+                        mDb.favouriteMovieDao().deleteFavMovie(favouriteMovie);
+                        return true;
+                    }
+                    FavouriteMovie newFavMovie = new FavouriteMovie(movie.getId(), movie.getTitle(), movie.getPoster(),
+                            movie.getDescription(), movie.getRating(), movie.getReleaseDate());
+                    mDb.favouriteMovieDao().insertFavMovie(newFavMovie);
+                    return false;
+                }
 
-            Toast.makeText(this, "id = " + movie.getId(), Toast.LENGTH_SHORT).show();
+                @Override
+                protected void onPostExecute(Boolean isFavourite) {
+                    MenuItem favButton = menu.findItem(R.id.action_favourite);
+                    if (isFavourite) {
+                        favButton.setIcon(android.R.drawable.btn_star_big_off);
+                    } else {
+                        favButton.setIcon(android.R.drawable.btn_star_big_on);
+                    }
+                }
+            }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, movie.getId());
         }
-
     }
 
-    //Helper method to set the favourite icon to on/off depending on current state
-    private void setIcon() {
-        if (movie != null) {
-            MenuItem favButton = menu.findItem(R.id.action_favourite);
-            if (isFavourite()) {
-                favButton.setIcon(android.R.drawable.btn_star_big_on);
-            } else {
-                favButton.setIcon(android.R.drawable.btn_star_big_off);
+    //Helper method to refresh the favourite icon to on/off depending on current state in DB
+    private void refreshFavourite() {
+
+        new AsyncTask<Integer, Void, Boolean>() {
+            @Override
+            protected Boolean doInBackground(Integer... integers) {
+                FavouriteMovie favouriteMovie = mDb.favouriteMovieDao().getFavMovieById(integers[0]);
+                if (favouriteMovie != null) {
+                    return true;
+                }
+                return false;
             }
-        }
-    }
 
-    //Helper method to determine if a movie is already a favourite
-    private boolean isFavourite() {
-        FavouriteMovie favouriteMovie = mDb.favouriteMovieDao().getFavMovieById(movie.getId());
-
-        if (favouriteMovie != null) {
-            return true;
-        }
-        return false;
+            @Override
+            protected void onPostExecute(Boolean isFavourite) {
+                MenuItem favButton = menu.findItem(R.id.action_favourite);
+                if (isFavourite) {
+                    favButton.setIcon(android.R.drawable.btn_star_big_on);
+                } else {
+                    favButton.setIcon(android.R.drawable.btn_star_big_off);
+                }
+            }
+        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, movie.getId());
     }
 }
