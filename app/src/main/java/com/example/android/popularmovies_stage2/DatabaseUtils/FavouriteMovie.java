@@ -1,10 +1,13 @@
-package com.example.android.popularmovies_stage2;
+package com.example.android.popularmovies_stage2.DatabaseUtils;
 
-import java.io.Serializable;
+import androidx.room.Entity;
+import androidx.room.Ignore;
+import androidx.room.PrimaryKey;
 
-public class Movie implements Serializable {
+@Entity(tableName = "favouriteMovie")
+public class FavouriteMovie {
 
-
+    @PrimaryKey
     private int id;
     private String title;
     private String poster;
@@ -12,66 +15,54 @@ public class Movie implements Serializable {
     private int rating;  // store as x10 to make it a percentage
     private String releaseDate;
 
-    public Movie() {
 
-    }
-
-    public Movie(int mId, String mTitle, String mPoster, String mDescription, int mRating, String mReleaseDate) {
-        this.id = mId;
-        this.title = mTitle;
-        this.poster = mPoster;
-        this.description = mDescription;
-        this.rating = mRating;
-        this.releaseDate = mReleaseDate;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
+    public FavouriteMovie(int id, String title, String poster, String description, int rating, String releaseDate) {
         this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
         this.title = title;
-    }
-
-    public String getPoster() {
-        return poster;
-    }
-
-    public void setPoster(String poster) {
         this.poster = poster;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
         this.description = description;
-    }
-
-    public int getRating() {
-        return rating;
-    }
-
-    public void setRating(int rating) {
         this.rating = rating;
-    }
-
-    public String getReleaseDate() {
-        return releaseDate;
-    }
-
-    public void setReleaseDate(String releaseDate) {
         this.releaseDate = releaseDate;
     }
 
+    ////////////////////////////////////
+    ////  GETTERS AND SETTERS HERE  ////
+    ////////////////////////////////////
+    public int getId() {
+        return id;
+    }
+    public void setId(int id) {
+        this.id = id;
+    }
+    public String getTitle() {
+        return title;
+    }
+    public void setTitle(String title) {
+        this.title = title;
+    }
+    public String getPoster() {
+        return poster;
+    }
+    public void setPoster(String poster) {
+        this.poster = poster;
+    }
+    public String getDescription() {
+        return description;
+    }
+    public void setDescription(String description) {
+        this.description = description;
+    }
+    public int getRating() {
+        return rating;
+    }
+    public void setRating(int rating) {
+        this.rating = rating;
+    }
+    public String getReleaseDate() {
+        return releaseDate;
+    }
+    public void setReleaseDate(String releaseDate) {
+        this.releaseDate = releaseDate;
+    }
 
 }

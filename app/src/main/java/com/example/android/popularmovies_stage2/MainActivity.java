@@ -17,6 +17,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.android.popularmovies_stage2.DatabaseUtils.AppDatabase;
+import com.example.android.popularmovies_stage2.DatabaseUtils.FavouriteMovie;
 import com.example.android.popularmovies_stage2.utilities.JsonUtils;
 import com.example.android.popularmovies_stage2.utilities.NetworkUtils;
 import org.json.JSONArray;
@@ -25,6 +27,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -38,11 +41,15 @@ public class MainActivity extends AppCompatActivity {
     private ProgressBar mLoadingIndicator;
     private TextView mErrorMessage;
 
+    AppDatabase mDb;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mDb = AppDatabase.getInstance(this);
 
         movieList = new ArrayList<Movie>();
 
@@ -165,4 +172,22 @@ public class MainActivity extends AppCompatActivity {
             mLoadingIndicator.setVisibility(View.INVISIBLE);
         }
     }
+
+
+    /// TEST CODE FOR DB ///
+    /*
+    @Override
+    protected void onResume() {
+        super.onResume();
+        testDb();
+    }
+
+    public void testDb() {
+        List<FavouriteMovie> favouriteMovies = mDb.favouriteMovieDao().loadAllFavMovies();
+        System.out.println("HEEEEEEEEEEEEEEEEEEYYYYYYYYYYYYYY LISTEN UP");
+        for (FavouriteMovie movie: favouriteMovies) {
+            System.out.println(movie.getId() + ", " + movie.getTitle());
+        }
+    }
+    */
 }

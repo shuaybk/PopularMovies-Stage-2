@@ -3,5 +3,6 @@
     <string name="title_description">Description:</string>
     <string name="menu_sort_popular">Sort by popularity</string>
     <string name="menu_sort_rating">Sort by rating</string>
+    <string name="menu_favourite">Add to Favourites</string>
     <string name="error_message">An error has occured!! (Do you have internet?)</string>
 </resources>
