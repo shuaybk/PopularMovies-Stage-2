@@ -103,7 +103,7 @@ public class MovieDetails extends AppCompatActivity {
                         favButton.setIcon(android.R.drawable.btn_star_big_on);
                     }
                 }
-            }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, movie.getId());
+            }.execute(movie.getId());
         }
     }
 
@@ -129,6 +129,6 @@ public class MovieDetails extends AppCompatActivity {
                     favButton.setIcon(android.R.drawable.btn_star_big_off);
                 }
             }
-        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, movie.getId());
+        }.execute(movie.getId());
     }
 }
