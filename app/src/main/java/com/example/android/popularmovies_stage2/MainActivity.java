@@ -103,7 +103,6 @@ public class MainActivity extends AppCompatActivity {
         } else {
             mRecyclerViewMovies.setVisibility(View.INVISIBLE);
             mErrorMessage.setVisibility(View.VISIBLE);
-            Toast.makeText(this, "Error: No Internet Connection!", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -199,9 +198,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onChanged(@Nullable List<FavouriteMovie> favMovies) {
                 favouriteMoviesLD.removeObserver(this);
-                if (currentSort.equals(SORT_TYPE_FAVOURITE)) {
-                    setMovieData(null, favMovies);
-                }
+                mRecyclerViewMovies.setVisibility(View.VISIBLE);
+                mErrorMessage.setVisibility(View.INVISIBLE);
+                setMovieData(null, favMovies);
             }
         });
     }
