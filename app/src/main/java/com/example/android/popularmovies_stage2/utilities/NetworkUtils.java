@@ -23,11 +23,10 @@ public class NetworkUtils {
     final static String pagesToDisplay = "1";
 
 
-    //sortBy = 1 for popular, sortBy = 2 for rating
-    public static URL getURL(int sortBy) {
+    public static URL getURL(String sortBy) {
 
         String base_url = MOVIEDB_POPULAR_BASE_URL;
-        if (sortBy == 2) {
+        if (sortBy.equals(MainActivity.SORT_TYPE_RATING)) {
             base_url = MOVIEDB_RATING_BASE_URL;
         }
 

@@ -30,4 +30,8 @@ public interface FavouriteMovieDao {
 
     @Query("SELECT * FROM favouriteMovie WHERE id = :id")
     FavouriteMovie getFavMovieById(int id);
+
+    @Query("SELECT * FROM favouriteMovie WHERE id = :id")
+    LiveData<FavouriteMovie> getFavMovieById2(int id);
+
 }

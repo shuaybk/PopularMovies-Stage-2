@@ -1,5 +1,7 @@
 package com.example.android.popularmovies_stage2;
 
+import com.example.android.popularmovies_stage2.DatabaseUtils.FavouriteMovie;
+
 import java.io.Serializable;
 
 public class Movie implements Serializable {
@@ -71,6 +73,11 @@ public class Movie implements Serializable {
 
     public void setReleaseDate(String releaseDate) {
         this.releaseDate = releaseDate;
+    }
+
+    public FavouriteMovie toFavouriteMovie() {
+        return new FavouriteMovie(this.id,
+                this.title, this.poster, this.description, this.rating, this.releaseDate);
     }
 
 

@@ -32,6 +32,12 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+
+////// TO DO
+//Fix the observer to stop creating a new one every time we sort by favourite.
+//It should probably be created in onCreate once
+
+
 public class MainActivity extends AppCompatActivity {
 
     public static final String API_KEY = "";  //themoviedb.org API Key, replace with your own to make this app work
@@ -39,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String SORT_TYPE_POPULAR = "POPULAR_SORT";
     public static final String SORT_TYPE_RATING = "RATING_SORT";
     public static final String SORT_TYPE_FAVOURITE = "FAVOURITE_SORT";
+    public static final String BUNDLE_SORT_KEY = "SORT TYPE";
 
     private ArrayList<Movie> movieList;
 
@@ -48,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView mErrorMessage;
 
     private String currentSort;
+    private LiveData<List<FavouriteMovie>> favouriteMoviesLD;
 
     AppDatabase mDb;
 
@@ -66,17 +74,31 @@ public class MainActivity extends AppCompatActivity {
         mLoadingIndicator = (ProgressBar) findViewById(R.id.pb_loading_indicator);
         mErrorMessage = (TextView) findViewById(R.id.tv_error_message);
 
-        currentSort = SORT_TYPE_POPULAR;
-        refreshList(1);
+        //get current sort first
+        if (savedInstanceState != null) {
+            currentSort = savedInstanceState.getString(BUNDLE_SORT_KEY);
+        } else {
+            currentSort = SORT_TYPE_POPULAR;
+        }
+        startFavouriteMoviesObserver();
+        if (!currentSort.equals(SORT_TYPE_FAVOURITE)) {
+            refreshList();
+        }
 
         setTitle("PopularMovies");
 
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putString(BUNDLE_SORT_KEY, currentSort);
+        super.onSaveInstanceState(outState);
+    }
+
     //Fetch data online and refresh the list if there is an internet connection, otherwise display error
-    private void refreshList(int sortBy) {
+    private void refreshList() {
         if (isConnectedToInternet()) {
-            URL url = NetworkUtils.getURL(sortBy);
+            URL url = NetworkUtils.getURL(currentSort);
             new MovieQueryTask().execute(url);
         } else {
             mRecyclerViewMovies.setVisibility(View.INVISIBLE);
@@ -97,12 +119,12 @@ public class MainActivity extends AppCompatActivity {
             case R.id.action_sort_popular:
                 Toast.makeText(this, "Sorting by popularity", Toast.LENGTH_LONG).show();
                 currentSort = SORT_TYPE_POPULAR;
-                refreshList(1);
+                refreshList();
                 return true;
             case R.id.action_sort_rating:
                 Toast.makeText(this, "Sorting by top rated", Toast.LENGTH_LONG).show();
                 currentSort = SORT_TYPE_RATING;
-                refreshList(2);
+                refreshList();
                 return true;
             case R.id.action_sort_fav:
                 Toast.makeText(this, "Showing favourites", Toast.LENGTH_LONG).show();
@@ -169,10 +191,14 @@ public class MainActivity extends AppCompatActivity {
 
     //Queries the database for all our favourites and lists them
     public void showFavourites() {
-        LiveData<List<FavouriteMovie>> favouriteMoviesLD = mDb.favouriteMovieDao().loadAllFavMovies();
+        //Start observer to load favourite movies as a ONE TIME load
+        //We don't want to keep this observer otherwise we are creating a new observer everytime user
+        //sorts by favourites.  So remove the observer in the onChanged method
+        //We already have a different observer for listening to updates started in onCreate
         favouriteMoviesLD.observe(this, new Observer<List<FavouriteMovie>>() {
             @Override
             public void onChanged(@Nullable List<FavouriteMovie> favMovies) {
+                favouriteMoviesLD.removeObserver(this);
                 if (currentSort.equals(SORT_TYPE_FAVOURITE)) {
                     setMovieData(null, favMovies);
                 }
@@ -217,6 +243,19 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    //Helper method to start the observer
+    private void startFavouriteMoviesObserver() {
+        favouriteMoviesLD = mDb.favouriteMovieDao().loadAllFavMovies();
+        //Start observer to listen for all updates throughout activity life
+        favouriteMoviesLD.observe(this, new Observer<List<FavouriteMovie>>() {
+            @Override
+            public void onChanged(@Nullable List<FavouriteMovie> favMovies) {
+                if (currentSort.equals(SORT_TYPE_FAVOURITE)) {
+                    setMovieData(null, favMovies);
+                }
+            }
+        });
+    }
 
     /// TEST CODE FOR DB ///
     /*
