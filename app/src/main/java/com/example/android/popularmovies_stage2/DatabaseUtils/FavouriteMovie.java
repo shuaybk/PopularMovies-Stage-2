@@ -6,6 +6,8 @@ import androidx.room.PrimaryKey;
 
 import com.example.android.popularmovies_stage2.Movie;
 
+import java.util.ArrayList;
+
 @Entity(tableName = "favouriteMovie")
 public class FavouriteMovie {
 
@@ -16,6 +18,7 @@ public class FavouriteMovie {
     private String description;
     private int rating;  // store as x10 to make it a percentage
     private String releaseDate;
+    //private ArrayList<String> trailerKeys;
 
 
     public FavouriteMovie(int id, String title, String poster, String description, int rating, String releaseDate) {
@@ -70,7 +73,7 @@ public class FavouriteMovie {
     @Ignore
     public Movie toMovie() {
         return new Movie(this.id,
-                this.title, this.poster, this.description, this.rating, this.releaseDate);
+                this.title, this.poster, this.description, this.rating, this.releaseDate, null);
     }
 
 }

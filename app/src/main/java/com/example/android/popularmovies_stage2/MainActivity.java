@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
     //Fetch data online and refresh the list if there is an internet connection, otherwise display error
     private void refreshList() {
         if (isConnectedToInternet()) {
-            URL url = NetworkUtils.getURL(currentSort);
+            URL url = NetworkUtils.getMovieURL(currentSort);
             new MovieQueryTask().execute(url);
         } else {
             mRecyclerViewMovies.setVisibility(View.INVISIBLE);
@@ -205,6 +205,19 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    //Helper method to start the observer
+    private void startFavouriteMoviesObserver() {
+        favouriteMoviesLD = mDb.favouriteMovieDao().loadAllFavMovies();
+        //Start observer to listen for all updates throughout activity life
+        favouriteMoviesLD.observe(this, new Observer<List<FavouriteMovie>>() {
+            @Override
+            public void onChanged(@Nullable List<FavouriteMovie> favMovies) {
+                if (currentSort.equals(SORT_TYPE_FAVOURITE)) {
+                    setMovieData(null, favMovies);
+                }
+            }
+        });
+    }
 
 
     public class MovieQueryTask extends AsyncTask<URL, Void, String> {
@@ -241,35 +254,4 @@ public class MainActivity extends AppCompatActivity {
             mLoadingIndicator.setVisibility(View.INVISIBLE);
         }
     }
-
-    //Helper method to start the observer
-    private void startFavouriteMoviesObserver() {
-        favouriteMoviesLD = mDb.favouriteMovieDao().loadAllFavMovies();
-        //Start observer to listen for all updates throughout activity life
-        favouriteMoviesLD.observe(this, new Observer<List<FavouriteMovie>>() {
-            @Override
-            public void onChanged(@Nullable List<FavouriteMovie> favMovies) {
-                if (currentSort.equals(SORT_TYPE_FAVOURITE)) {
-                    setMovieData(null, favMovies);
-                }
-            }
-        });
-    }
-
-    /// TEST CODE FOR DB ///
-    /*
-    @Override
-    protected void onResume() {
-        super.onResume();
-        testDb();
-    }
-
-    public void testDb() {
-        List<FavouriteMovie> favouriteMovies = mDb.favouriteMovieDao().loadAllFavMovies();
-        System.out.println("HEEEEEEEEEEEEEEEEEEYYYYYYYYYYYYYY LISTEN UP");
-        for (FavouriteMovie movie: favouriteMovies) {
-            System.out.println(movie.getId() + ", " + movie.getTitle());
-        }
-    }
-    */
 }

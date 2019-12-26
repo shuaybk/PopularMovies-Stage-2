@@ -45,6 +45,11 @@
             android:paddingTop="15dp"
             android:paddingLeft="10dp"
             android:paddingBottom="15dp" />
+        <TextView
+            android:id="@+id/tv_trailer1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
     </LinearLayout>
 
 </ScrollView>

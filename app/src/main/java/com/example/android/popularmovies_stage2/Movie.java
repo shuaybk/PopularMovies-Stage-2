@@ -3,6 +3,7 @@ package com.example.android.popularmovies_stage2;
 import com.example.android.popularmovies_stage2.DatabaseUtils.FavouriteMovie;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 public class Movie implements Serializable {
 
@@ -13,18 +14,20 @@ public class Movie implements Serializable {
     private String description;
     private int rating;  // store as x10 to make it a percentage
     private String releaseDate;
+    private ArrayList<String> trailerKeys;
 
     public Movie() {
 
     }
 
-    public Movie(int mId, String mTitle, String mPoster, String mDescription, int mRating, String mReleaseDate) {
+    public Movie(int mId, String mTitle, String mPoster, String mDescription, int mRating, String mReleaseDate, ArrayList<String> mTrailerKeys) {
         this.id = mId;
         this.title = mTitle;
         this.poster = mPoster;
         this.description = mDescription;
         this.rating = mRating;
         this.releaseDate = mReleaseDate;
+        this.trailerKeys = mTrailerKeys;
     }
 
     public int getId() {
@@ -73,6 +76,14 @@ public class Movie implements Serializable {
 
     public void setReleaseDate(String releaseDate) {
         this.releaseDate = releaseDate;
+    }
+
+    public ArrayList<String> getTrailerKeys() {
+        return trailerKeys;
+    }
+
+    public void setTrailerKeys(ArrayList<String> trailerKeys) {
+        this.trailerKeys = trailerKeys;
     }
 
     public FavouriteMovie toFavouriteMovie() {

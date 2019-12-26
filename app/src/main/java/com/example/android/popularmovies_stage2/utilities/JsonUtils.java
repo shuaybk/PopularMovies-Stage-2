@@ -3,13 +3,21 @@ package com.example.android.popularmovies_stage2.utilities;
 import com.example.android.popularmovies_stage2.MainActivity;
 import com.example.android.popularmovies_stage2.Movie;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 public class JsonUtils {
 
     public static final String BASE_IMAGE_URL = "http://image.tmdb.org/t/p/";
     public static final String IMAGE_SIZE = "w" + MainActivity.IMAGE_WIDTH;
+    public static final String TRAILER_TYPE_KEY = "type";
+    public static final String TRAILER_SITE_KEY = "site";
+    public static final String TRAILER_KEY_KEY = "key";
+    public static final int MAX_NUMBER_TRAILERS = 2;
+
 
     public static Movie parseMovieJson (JSONObject json) {
         Movie movie = null;
@@ -21,10 +29,35 @@ public class JsonUtils {
             int rating = (int)(json.getDouble("vote_average")*10);
             String releaseDate = json.getString("release_date");
 
-            movie = new Movie(id, title, poster, description, rating, releaseDate);
+            movie = new Movie(id, title, poster, description, rating, releaseDate, null);
         } catch(JSONException e) {
             e.printStackTrace();
         }
         return movie;
+    }
+
+    public static ArrayList<String> parseTrailerJson (String trailerJson) {
+        ArrayList<String> trailerKeys = new ArrayList<String>();
+
+        if (trailerJson != null) {
+            try {
+                JSONObject jsonData = new JSONObject(trailerJson);
+                JSONArray jsonTrailerList = jsonData.getJSONArray("results");
+
+                for (int i = 0; i < jsonTrailerList.length(); i++) {
+                    if (trailerKeys.size() < MAX_NUMBER_TRAILERS) {
+                        JSONObject currTrailer = jsonTrailerList.getJSONObject(i);
+                        if (currTrailer.getString(TRAILER_TYPE_KEY).equals("Trailer") && currTrailer.getString(TRAILER_SITE_KEY).equals("YouTube")) {
+                            trailerKeys.add(currTrailer.getString(TRAILER_KEY_KEY));
+                        }
+                    } else {
+                        break;
+                    }
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        return trailerKeys;
     }
 }

@@ -10,13 +10,23 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.popularmovies_stage2.DatabaseUtils.AppDatabase;
 import com.example.android.popularmovies_stage2.DatabaseUtils.FavouriteMovie;
+import com.example.android.popularmovies_stage2.utilities.JsonUtils;
+import com.example.android.popularmovies_stage2.utilities.NetworkUtils;
 import com.squareup.picasso.Picasso;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.net.URL;
 
 public class MovieDetails extends AppCompatActivity {
 
@@ -25,6 +35,7 @@ public class MovieDetails extends AppCompatActivity {
     TextView mDescription;
     TextView mRating;
     TextView mRelease;
+    TextView mTrailer1;
     Menu menu;
     boolean isFavourite;
 
@@ -43,11 +54,15 @@ public class MovieDetails extends AppCompatActivity {
         mDescription = (TextView) findViewById(R.id.tv_description);
         mRating = (TextView) findViewById(R.id.tv_rating);
         mRelease = (TextView) findViewById(R.id.tv_release);
+        mTrailer1 = (TextView) findViewById(R.id.tv_trailer1);
 
         Intent parentIntent = getIntent();
         if (parentIntent.hasExtra(Intent.EXTRA_COMPONENT_NAME)) {
             movie = (Movie)parentIntent.getSerializableExtra(Intent.EXTRA_COMPONENT_NAME);
         }
+
+        setTrailers();
+
         Picasso.get().load(movie.getPoster()).into(mFullPoster);
         setTitle(movie.getTitle());
         mDescription.setText(movie.getDescription());
@@ -55,6 +70,18 @@ public class MovieDetails extends AppCompatActivity {
         mRelease.setText("Release Date: " + movie.getReleaseDate());
     }
 
+
+    private void setTrailers() {
+        URL url = NetworkUtils.getTrailerURL(movie.getId());
+        new TrailerQueryTask().execute(url);
+    }
+
+    private void populateTrailerViews(String trailerJson) {
+        movie.setTrailerKeys(JsonUtils.parseTrailerJson(trailerJson));
+        for (String trailerKey: movie.getTrailerKeys()){
+            mTrailer1.setText("Trailer 1 - Youtube " + trailerKey);
+        }
+    }
 
     ///////////////////////////
     ////  MENU STUFF HERE  ////
@@ -120,4 +147,42 @@ public class MovieDetails extends AppCompatActivity {
             }
         });
     }
+
+
+    public class TrailerQueryTask extends AsyncTask<URL, Void, String> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+           // mLoadingIndicator.setVisibility(View.VISIBLE);
+           // mRecyclerViewMovies.setVisibility(View.INVISIBLE);
+        }
+
+        @Override
+        protected String doInBackground(URL... params) {
+            URL searchUrl = params[0];
+            String queryResults = null;
+            try {
+                queryResults = NetworkUtils.getResponseFromHttpUrl(searchUrl);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return queryResults;
+        }
+
+        @Override
+        protected void onPostExecute(String queryResults) {
+            if (queryResults == null) {
+            //    mErrorMessage.setVisibility(View.VISIBLE);
+            //    mRecyclerViewMovies.setVisibility(View.INVISIBLE);
+            } else {
+            //    mErrorMessage.setVisibility(View.INVISIBLE);
+            //    mRecyclerViewMovies.setVisibility(View.VISIBLE);
+            //    setMovieData(queryResults, null);
+                populateTrailerViews(queryResults);
+            }
+            //mLoadingIndicator.setVisibility(View.INVISIBLE);
+        }
+    }
+
 }

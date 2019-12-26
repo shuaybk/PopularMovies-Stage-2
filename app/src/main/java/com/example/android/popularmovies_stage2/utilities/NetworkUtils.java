@@ -13,8 +13,10 @@ import java.util.Scanner;
 
 public class NetworkUtils {
 
-    final static String MOVIEDB_POPULAR_BASE_URL = "https://api.themoviedb.org/3/movie/popular";
-    final static String MOVIEDB_RATING_BASE_URL = "https://api.themoviedb.org/3/movie/top_rated";
+    final static String MOVIEDB_BASE_URL = "https://api.themoviedb.org/3/movie/";
+    final static String MOVIEDB_URL_POPULAR = "popular";
+    final static String MOVIEDB_URL_RATING = "top_rated";
+    final static String MOVIEDB_URL_VIDEO = "/videos";
     final static String PARAM_API_KEY = "api_key";
     final static String PARAM_LANGUAGE = "language";
     final static String PARAM_PAGES = "page";
@@ -23,17 +25,37 @@ public class NetworkUtils {
     final static String pagesToDisplay = "1";
 
 
-    public static URL getURL(String sortBy) {
+    public static URL getMovieURL(String sortBy) {
 
-        String base_url = MOVIEDB_POPULAR_BASE_URL;
-        if (sortBy.equals(MainActivity.SORT_TYPE_RATING)) {
-            base_url = MOVIEDB_RATING_BASE_URL;
+        String base_url = MOVIEDB_BASE_URL;
+        if (sortBy.equals(MainActivity.SORT_TYPE_POPULAR)) {
+            base_url += MOVIEDB_URL_POPULAR;
+        } else if (sortBy.equals(MainActivity.SORT_TYPE_RATING)) {
+            base_url += MOVIEDB_URL_RATING;
         }
 
         Uri builtUri = Uri.parse(base_url).buildUpon()
                 .appendQueryParameter(PARAM_API_KEY, MainActivity.API_KEY)
                 .appendQueryParameter(PARAM_LANGUAGE, lang)
                 .appendQueryParameter(PARAM_PAGES, pagesToDisplay)
+                .build();
+
+        URL url = null;
+        try {
+            url = new URL(builtUri.toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        return url;
+    }
+
+    //The id is the movie ID we want the trailer for
+    public static URL getTrailerURL(int id) {
+        String base_url = MOVIEDB_BASE_URL + id + MOVIEDB_URL_VIDEO;
+
+        Uri builtUri = Uri.parse(base_url).buildUpon()
+                .appendQueryParameter(PARAM_API_KEY, MainActivity.API_KEY)
+                .appendQueryParameter(PARAM_LANGUAGE, lang)
                 .build();
 
         URL url = null;
