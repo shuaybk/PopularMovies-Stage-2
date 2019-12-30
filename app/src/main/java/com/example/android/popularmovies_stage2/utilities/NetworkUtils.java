@@ -14,6 +14,7 @@ import java.util.Scanner;
 public class NetworkUtils {
 
     final static String MOVIEDB_BASE_URL = "https://api.themoviedb.org/3/movie/";
+    final static String YOUTUBE_BASE_URL = "https://www.youtube.com/watch?v=";
     final static String MOVIEDB_URL_POPULAR = "popular";
     final static String MOVIEDB_URL_RATING = "top_rated";
     final static String MOVIEDB_URL_VIDEO = "/videos";
@@ -40,17 +41,11 @@ public class NetworkUtils {
                 .appendQueryParameter(PARAM_PAGES, pagesToDisplay)
                 .build();
 
-        URL url = null;
-        try {
-            url = new URL(builtUri.toString());
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        return url;
+        return getUrl(builtUri);
     }
 
     //The id is the movie ID we want the trailer for
-    public static URL getTrailerURL(int id) {
+    public static URL getMdbTrailerURL(int id) {
         String base_url = MOVIEDB_BASE_URL + id + MOVIEDB_URL_VIDEO;
 
         Uri builtUri = Uri.parse(base_url).buildUpon()
@@ -58,6 +53,18 @@ public class NetworkUtils {
                 .appendQueryParameter(PARAM_LANGUAGE, lang)
                 .build();
 
+        return getUrl(builtUri);
+    }
+
+    public static Uri getYoutubeTrailerUri(String id) {
+        String base_url = YOUTUBE_BASE_URL + id;
+
+        Uri builtUri = Uri.parse(base_url).buildUpon().build();
+
+        return builtUri;
+    }
+
+    private static URL getUrl(Uri builtUri) {
         URL url = null;
         try {
             url = new URL(builtUri.toString());

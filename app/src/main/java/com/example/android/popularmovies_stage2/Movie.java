@@ -1,8 +1,11 @@
 package com.example.android.popularmovies_stage2;
 
+import android.net.Uri;
+
 import com.example.android.popularmovies_stage2.DatabaseUtils.FavouriteMovie;
 
 import java.io.Serializable;
+import java.net.URL;
 import java.util.ArrayList;
 
 public class Movie implements Serializable {
@@ -14,20 +17,20 @@ public class Movie implements Serializable {
     private String description;
     private int rating;  // store as x10 to make it a percentage
     private String releaseDate;
-    private ArrayList<String> trailerKeys;
+    private ArrayList<Uri> trailerUris;
 
     public Movie() {
 
     }
 
-    public Movie(int mId, String mTitle, String mPoster, String mDescription, int mRating, String mReleaseDate, ArrayList<String> mTrailerKeys) {
+    public Movie(int mId, String mTitle, String mPoster, String mDescription, int mRating, String mReleaseDate, ArrayList<Uri> mTrailerUris) {
         this.id = mId;
         this.title = mTitle;
         this.poster = mPoster;
         this.description = mDescription;
         this.rating = mRating;
         this.releaseDate = mReleaseDate;
-        this.trailerKeys = mTrailerKeys;
+        this.trailerUris = mTrailerUris;
     }
 
     public int getId() {
@@ -78,12 +81,12 @@ public class Movie implements Serializable {
         this.releaseDate = releaseDate;
     }
 
-    public ArrayList<String> getTrailerKeys() {
-        return trailerKeys;
+    public ArrayList<Uri> getTrailerUris() {
+        return trailerUris;
     }
 
-    public void setTrailerKeys(ArrayList<String> trailerKeys) {
-        this.trailerKeys = trailerKeys;
+    public void setTrailerUris(ArrayList<Uri> trailerUris) {
+        this.trailerUris = trailerUris;
     }
 
     public FavouriteMovie toFavouriteMovie() {

@@ -4,14 +4,18 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 
-import android.app.Application;
 import android.content.Intent;
+
+
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,22 +25,22 @@ import com.example.android.popularmovies_stage2.utilities.JsonUtils;
 import com.example.android.popularmovies_stage2.utilities.NetworkUtils;
 import com.squareup.picasso.Picasso;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 
 public class MovieDetails extends AppCompatActivity {
 
+    private static final int BUTTON_TRAILER_FIRST_ID = 1000;
     Movie movie;
     ImageView mFullPoster;
     TextView mDescription;
     TextView mRating;
     TextView mRelease;
-    TextView mTrailer1;
     Menu menu;
+    ArrayList<Button> trailerButtons;
+    LinearLayout trailerLayout;
     boolean isFavourite;
 
 
@@ -54,13 +58,13 @@ public class MovieDetails extends AppCompatActivity {
         mDescription = (TextView) findViewById(R.id.tv_description);
         mRating = (TextView) findViewById(R.id.tv_rating);
         mRelease = (TextView) findViewById(R.id.tv_release);
-        mTrailer1 = (TextView) findViewById(R.id.tv_trailer1);
 
         Intent parentIntent = getIntent();
         if (parentIntent.hasExtra(Intent.EXTRA_COMPONENT_NAME)) {
             movie = (Movie)parentIntent.getSerializableExtra(Intent.EXTRA_COMPONENT_NAME);
         }
 
+        trailerButtons = new ArrayList<Button>();
         setTrailers();
 
         Picasso.get().load(movie.getPoster()).into(mFullPoster);
@@ -70,16 +74,60 @@ public class MovieDetails extends AppCompatActivity {
         mRelease.setText("Release Date: " + movie.getReleaseDate());
     }
 
+    public void onClick(View v) {
+        Toast.makeText(getApplicationContext(), "Something clicked!", Toast.LENGTH_LONG).show();
+        switch (v.getId()) {
+            case BUTTON_TRAILER_FIRST_ID:
+                Toast.makeText(getApplicationContext(), "Trailer 1 clicked!", Toast.LENGTH_LONG).show();
+                break;
+            case BUTTON_TRAILER_FIRST_ID+1:
+                Toast.makeText(getApplicationContext(), "Trailer 2 clicked!", Toast.LENGTH_LONG).show();
+                break;
+            case BUTTON_TRAILER_FIRST_ID+2:
+                Toast.makeText(getApplicationContext(), "Trailer 3 clicked!", Toast.LENGTH_LONG).show();
+                break;
+        }
+    }
 
     private void setTrailers() {
-        URL url = NetworkUtils.getTrailerURL(movie.getId());
+        URL url = NetworkUtils.getMdbTrailerURL(movie.getId());
         new TrailerQueryTask().execute(url);
     }
 
     private void populateTrailerViews(String trailerJson) {
-        movie.setTrailerKeys(JsonUtils.parseTrailerJson(trailerJson));
-        for (String trailerKey: movie.getTrailerKeys()){
-            mTrailer1.setText("Trailer 1 - Youtube " + trailerKey);
+        movie.setTrailerUris(JsonUtils.parseTrailerJson(trailerJson));
+        int numTrailers = movie.getTrailerUris().size();
+        trailerLayout = (LinearLayout) findViewById(R.id.trailer_fragment_id);
+
+        //Create the buttons for viewing the trailers
+        for (int i = 0; i < numTrailers; i++) {
+            final int buttonId = BUTTON_TRAILER_FIRST_ID+i;
+            Button newButton = new Button(this);
+            newButton.setId(buttonId);
+            newButton.setText("Play Trailer " + (i+1));
+            newButton.setLayoutParams(new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT));
+
+            newButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int trailerIndex = buttonId - BUTTON_TRAILER_FIRST_ID;
+                    launchTrailerIntent(trailerIndex);
+                }
+            });
+
+            trailerButtons.add(newButton);
+            trailerLayout.addView(newButton);
+        }
+
+    }
+
+    private void launchTrailerIntent(int trailerIndex) {
+        Uri trailerUri = movie.getTrailerUris().get(trailerIndex);
+        Intent intent = new Intent(Intent.ACTION_VIEW, trailerUri);
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
         }
     }
 

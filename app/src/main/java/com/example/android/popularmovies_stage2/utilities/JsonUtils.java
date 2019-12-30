@@ -1,5 +1,7 @@
 package com.example.android.popularmovies_stage2.utilities;
 
+import android.net.Uri;
+
 import com.example.android.popularmovies_stage2.MainActivity;
 import com.example.android.popularmovies_stage2.Movie;
 
@@ -7,6 +9,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.URL;
 import java.util.ArrayList;
 
 public class JsonUtils {
@@ -16,7 +19,7 @@ public class JsonUtils {
     public static final String TRAILER_TYPE_KEY = "type";
     public static final String TRAILER_SITE_KEY = "site";
     public static final String TRAILER_KEY_KEY = "key";
-    public static final int MAX_NUMBER_TRAILERS = 2;
+    public static final int MAX_NUMBER_TRAILERS = 3;
 
 
     public static Movie parseMovieJson (JSONObject json) {
@@ -36,8 +39,8 @@ public class JsonUtils {
         return movie;
     }
 
-    public static ArrayList<String> parseTrailerJson (String trailerJson) {
-        ArrayList<String> trailerKeys = new ArrayList<String>();
+    public static ArrayList<Uri> parseTrailerJson (String trailerJson) {
+        ArrayList<Uri> trailerUris = new ArrayList<Uri>();
 
         if (trailerJson != null) {
             try {
@@ -45,10 +48,11 @@ public class JsonUtils {
                 JSONArray jsonTrailerList = jsonData.getJSONArray("results");
 
                 for (int i = 0; i < jsonTrailerList.length(); i++) {
-                    if (trailerKeys.size() < MAX_NUMBER_TRAILERS) {
+                    if (trailerUris.size() < MAX_NUMBER_TRAILERS) {
                         JSONObject currTrailer = jsonTrailerList.getJSONObject(i);
                         if (currTrailer.getString(TRAILER_TYPE_KEY).equals("Trailer") && currTrailer.getString(TRAILER_SITE_KEY).equals("YouTube")) {
-                            trailerKeys.add(currTrailer.getString(TRAILER_KEY_KEY));
+                            Uri uri = NetworkUtils.getYoutubeTrailerUri(currTrailer.getString((TRAILER_KEY_KEY)));
+                            trailerUris.add(uri);
                         }
                     } else {
                         break;
@@ -58,6 +62,6 @@ public class JsonUtils {
                 e.printStackTrace();
             }
         }
-        return trailerKeys;
+        return trailerUris;
     }
 }
