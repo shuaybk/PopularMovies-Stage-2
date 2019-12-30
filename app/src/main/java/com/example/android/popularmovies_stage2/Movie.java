@@ -18,12 +18,13 @@ public class Movie implements Serializable {
     private int rating;  // store as x10 to make it a percentage
     private String releaseDate;
     private ArrayList<Uri> trailerUris;
+    private ArrayList<String[]> reviews;
 
     public Movie() {
 
     }
 
-    public Movie(int mId, String mTitle, String mPoster, String mDescription, int mRating, String mReleaseDate, ArrayList<Uri> mTrailerUris) {
+    public Movie(int mId, String mTitle, String mPoster, String mDescription, int mRating, String mReleaseDate, ArrayList<Uri> mTrailerUris, ArrayList<String[]> mReviews) {
         this.id = mId;
         this.title = mTitle;
         this.poster = mPoster;
@@ -31,6 +32,7 @@ public class Movie implements Serializable {
         this.rating = mRating;
         this.releaseDate = mReleaseDate;
         this.trailerUris = mTrailerUris;
+        this.reviews = mReviews;
     }
 
     public int getId() {
@@ -88,6 +90,10 @@ public class Movie implements Serializable {
     public void setTrailerUris(ArrayList<Uri> trailerUris) {
         this.trailerUris = trailerUris;
     }
+
+    public ArrayList<String[]> getReviews() { return reviews; }
+
+    public void setReviews(ArrayList<String[]> reviews) { this.reviews = reviews; }
 
     public FavouriteMovie toFavouriteMovie() {
         return new FavouriteMovie(this.id,

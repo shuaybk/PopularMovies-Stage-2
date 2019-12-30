@@ -19,7 +19,10 @@ public class JsonUtils {
     public static final String TRAILER_TYPE_KEY = "type";
     public static final String TRAILER_SITE_KEY = "site";
     public static final String TRAILER_KEY_KEY = "key";
+    public static final String REVIEW_AUTHOR_KEY = "author";
+    public static final String REVIEW_CONTENT_KEY = "content";
     public static final int MAX_NUMBER_TRAILERS = 3;
+    public static final int MAX_NUMBER_REVIEWS = 5;
 
 
     public static Movie parseMovieJson (JSONObject json) {
@@ -32,7 +35,7 @@ public class JsonUtils {
             int rating = (int)(json.getDouble("vote_average")*10);
             String releaseDate = json.getString("release_date");
 
-            movie = new Movie(id, title, poster, description, rating, releaseDate, null);
+            movie = new Movie(id, title, poster, description, rating, releaseDate, null, null);
         } catch(JSONException e) {
             e.printStackTrace();
         }
@@ -40,7 +43,7 @@ public class JsonUtils {
     }
 
     public static ArrayList<Uri> parseTrailerJson (String trailerJson) {
-        ArrayList<Uri> trailerUris = new ArrayList<Uri>();
+        ArrayList<Uri> trailerUris = new ArrayList<>();
 
         if (trailerJson != null) {
             try {
@@ -63,5 +66,34 @@ public class JsonUtils {
             }
         }
         return trailerUris;
+    }
+
+    public static ArrayList<String[]> parseReviewsJson (String reviewsJson) {
+        ArrayList<String[]> reviews = new ArrayList<>();
+
+        if (reviewsJson != null) {
+            try {
+                JSONObject jsonData = new JSONObject(reviewsJson);
+                JSONArray jsonReviewList = jsonData.getJSONArray("results");
+
+                for (int i = 0; i < jsonReviewList.length(); i++) {
+                    if (reviews.size() < MAX_NUMBER_REVIEWS) {
+                        JSONObject currReview = jsonReviewList.getJSONObject(i);
+                        String[] review = new String[2];
+
+                        review[0] = currReview.getString(REVIEW_AUTHOR_KEY);
+                        review[1] = currReview.getString(REVIEW_CONTENT_KEY);
+                        reviews.add(review);
+                    } else {
+                        break;
+                    }
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return reviews;
     }
 }

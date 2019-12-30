@@ -26,7 +26,6 @@ import com.example.android.popularmovies_stage2.utilities.NetworkUtils;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 
@@ -41,6 +40,7 @@ public class MovieDetails extends AppCompatActivity {
     Menu menu;
     ArrayList<Button> trailerButtons;
     LinearLayout trailerLayout;
+    LinearLayout reviewLayout;
     boolean isFavourite;
 
 
@@ -90,8 +90,10 @@ public class MovieDetails extends AppCompatActivity {
     }
 
     private void setTrailers() {
-        URL url = NetworkUtils.getMdbTrailerURL(movie.getId());
-        new TrailerQueryTask().execute(url);
+        URL[] url = new URL[2];
+        url[0] = NetworkUtils.getMdbTrailerURL(movie.getId());
+        url[1] = NetworkUtils.getReviewsURL(movie.getId());
+        new AdditionalMovieDetailsQueryTask().execute(url);
     }
 
     private void populateTrailerViews(String trailerJson) {
@@ -120,7 +122,31 @@ public class MovieDetails extends AppCompatActivity {
             trailerButtons.add(newButton);
             trailerLayout.addView(newButton);
         }
+    }
 
+    private void populateReviewViews(String reviewsJson) {
+        movie.setReviews(JsonUtils.parseReviewsJson(reviewsJson));
+        int numReviews = movie.getReviews().size();
+        reviewLayout = (LinearLayout) findViewById(R.id.review_fragment_id);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+
+        //Create text views for each review
+        for (int i = 0; i < numReviews; i++) {
+            TextView tvAuth = new TextView(this);
+            TextView tvContent = new TextView(this);
+            tvAuth.setLayoutParams(params);
+            tvContent.setLayoutParams(params);
+            tvAuth.setText(movie.getReviews().get(i)[0]);
+            tvContent.setText(movie.getReviews().get(i)[1]);
+
+            reviewLayout.addView(tvAuth);
+            reviewLayout.addView(tvContent);
+        }
+
+        TextView reviewLabel = (TextView) findViewById(R.id.label_reviews_id);
+        reviewLabel.setVisibility(View.VISIBLE);
     }
 
     private void launchTrailerIntent(int trailerIndex) {
@@ -197,21 +223,16 @@ public class MovieDetails extends AppCompatActivity {
     }
 
 
-    public class TrailerQueryTask extends AsyncTask<URL, Void, String> {
+    public class AdditionalMovieDetailsQueryTask extends AsyncTask<URL, Void, String[]> {
 
         @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-           // mLoadingIndicator.setVisibility(View.VISIBLE);
-           // mRecyclerViewMovies.setVisibility(View.INVISIBLE);
-        }
-
-        @Override
-        protected String doInBackground(URL... params) {
-            URL searchUrl = params[0];
-            String queryResults = null;
+        protected String[] doInBackground(URL... params) {
+            URL trailersUrl = params[0];
+            URL reviewsUrl = params[1];
+            String[] queryResults = new String[2];
             try {
-                queryResults = NetworkUtils.getResponseFromHttpUrl(searchUrl);
+                queryResults[0] = NetworkUtils.getResponseFromHttpUrl(trailersUrl);
+                queryResults[1] = NetworkUtils.getResponseFromHttpUrl(reviewsUrl);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -219,17 +240,13 @@ public class MovieDetails extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(String queryResults) {
-            if (queryResults == null) {
-            //    mErrorMessage.setVisibility(View.VISIBLE);
-            //    mRecyclerViewMovies.setVisibility(View.INVISIBLE);
+        protected void onPostExecute(String[] queryResults) {
+            if (queryResults[0] == null || queryResults[1] == null) {
+
             } else {
-            //    mErrorMessage.setVisibility(View.INVISIBLE);
-            //    mRecyclerViewMovies.setVisibility(View.VISIBLE);
-            //    setMovieData(queryResults, null);
-                populateTrailerViews(queryResults);
+                populateTrailerViews(queryResults[0]);
+                populateReviewViews(queryResults[1]);
             }
-            //mLoadingIndicator.setVisibility(View.INVISIBLE);
         }
     }
 

@@ -18,6 +18,7 @@ public class NetworkUtils {
     final static String MOVIEDB_URL_POPULAR = "popular";
     final static String MOVIEDB_URL_RATING = "top_rated";
     final static String MOVIEDB_URL_VIDEO = "/videos";
+    final static String MOVIEDB_URL_REVIEW = "/reviews";
     final static String PARAM_API_KEY = "api_key";
     final static String PARAM_LANGUAGE = "language";
     final static String PARAM_PAGES = "page";
@@ -51,6 +52,18 @@ public class NetworkUtils {
         Uri builtUri = Uri.parse(base_url).buildUpon()
                 .appendQueryParameter(PARAM_API_KEY, MainActivity.API_KEY)
                 .appendQueryParameter(PARAM_LANGUAGE, lang)
+                .build();
+
+        return getUrl(builtUri);
+    }
+
+    public static URL getReviewsURL(int id) {
+        String base_url = MOVIEDB_BASE_URL + id + MOVIEDB_URL_REVIEW;
+
+        Uri builtUri = Uri.parse(base_url).buildUpon()
+                .appendQueryParameter(PARAM_API_KEY, MainActivity.API_KEY)
+                .appendQueryParameter(PARAM_LANGUAGE, lang)
+                .appendQueryParameter(PARAM_PAGES, pagesToDisplay)
                 .build();
 
         return getUrl(builtUri);

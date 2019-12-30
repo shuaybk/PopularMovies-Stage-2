@@ -73,7 +73,7 @@ public class FavouriteMovie {
     @Ignore
     public Movie toMovie() {
         return new Movie(this.id,
-                this.title, this.poster, this.description, this.rating, this.releaseDate, null);
+                this.title, this.poster, this.description, this.rating, this.releaseDate, null, null);
     }
 
 }

@@ -54,6 +54,21 @@
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
             layout="@layout/trailer_fragment" />
+        <TextView
+            android:id="@+id/label_reviews_id"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:paddingTop="15dp"
+            android:paddingLeft="10dp"
+            android:paddingStart="10dp"
+            android:text="@string/label_reviews"
+            android:visibility="gone" />
+        <include
+            android:id="@+id/review_fragment_id"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            layout="@layout/review_fragment" />
 
     </LinearLayout>
 
