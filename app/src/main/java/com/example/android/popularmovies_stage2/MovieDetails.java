@@ -1,15 +1,18 @@
 package com.example.android.popularmovies_stage2;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 
 import android.content.Intent;
 
 
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -65,7 +68,7 @@ public class MovieDetails extends AppCompatActivity {
         }
 
         trailerButtons = new ArrayList<Button>();
-        setTrailers();
+        setTrailersAndReviews();
 
         Picasso.get().load(movie.getPoster()).into(mFullPoster);
         setTitle(movie.getTitle());
@@ -74,22 +77,7 @@ public class MovieDetails extends AppCompatActivity {
         mRelease.setText("Release Date: " + movie.getReleaseDate());
     }
 
-    public void onClick(View v) {
-        Toast.makeText(getApplicationContext(), "Something clicked!", Toast.LENGTH_LONG).show();
-        switch (v.getId()) {
-            case BUTTON_TRAILER_FIRST_ID:
-                Toast.makeText(getApplicationContext(), "Trailer 1 clicked!", Toast.LENGTH_LONG).show();
-                break;
-            case BUTTON_TRAILER_FIRST_ID+1:
-                Toast.makeText(getApplicationContext(), "Trailer 2 clicked!", Toast.LENGTH_LONG).show();
-                break;
-            case BUTTON_TRAILER_FIRST_ID+2:
-                Toast.makeText(getApplicationContext(), "Trailer 3 clicked!", Toast.LENGTH_LONG).show();
-                break;
-        }
-    }
-
-    private void setTrailers() {
+    private void setTrailersAndReviews() {
         URL[] url = new URL[2];
         url[0] = NetworkUtils.getMdbTrailerURL(movie.getId());
         url[1] = NetworkUtils.getReviewsURL(movie.getId());
@@ -127,26 +115,55 @@ public class MovieDetails extends AppCompatActivity {
     private void populateReviewViews(String reviewsJson) {
         movie.setReviews(JsonUtils.parseReviewsJson(reviewsJson));
         int numReviews = movie.getReviews().size();
-        reviewLayout = (LinearLayout) findViewById(R.id.review_fragment_id);
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT);
 
-        //Create text views for each review
-        for (int i = 0; i < numReviews; i++) {
-            TextView tvAuth = new TextView(this);
-            TextView tvContent = new TextView(this);
-            tvAuth.setLayoutParams(params);
-            tvContent.setLayoutParams(params);
-            tvAuth.setText(movie.getReviews().get(i)[0]);
-            tvContent.setText(movie.getReviews().get(i)[1]);
+        if (numReviews > 0) {
+            reviewLayout = (LinearLayout) findViewById(R.id.review_fragment_id);
+            int oneDip = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics());
 
-            reviewLayout.addView(tvAuth);
-            reviewLayout.addView(tvContent);
+            LinearLayout.LayoutParams authParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT);
+            LinearLayout.LayoutParams contentParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT);
+            LinearLayout.LayoutParams dividerParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    oneDip);
+            authParams.setMargins(10 * oneDip, 10 * oneDip, 10 * oneDip, 0);
+            contentParams.setMargins(10 * oneDip, 10 * oneDip, 10 * oneDip, 0);
+            dividerParams.setMargins(10 * oneDip, 10 * oneDip, 10 * oneDip, 0);
+
+
+            //Create text views for each review
+            for (int i = 0; i < numReviews; i++) {
+                TextView tvAuth = new TextView(this);
+                TextView tvContent = new TextView(this);
+                tvAuth.setLayoutParams(authParams);
+                tvContent.setLayoutParams(contentParams);
+
+                //Create a divider line above this review if it's not the first review
+                if (i != 0) {
+                    View divider = new View(this);
+                    divider.setLayoutParams(dividerParams);
+                    divider.setBackgroundColor(ContextCompat.getColor(this, R.color.white));
+                    reviewLayout.addView(divider);
+                }
+
+                tvAuth.setText("User: " + movie.getReviews().get(i)[0]);
+                tvAuth.setTypeface(null, Typeface.BOLD);
+                tvContent.setText(movie.getReviews().get(i)[1]);
+
+                reviewLayout.addView(tvAuth);
+                reviewLayout.addView(tvContent);
+            }
+
+            View reviewDivider1 = (View) findViewById(R.id.review_divider1_id);
+            View reviewDivider2 = (View) findViewById(R.id.review_divider2_id);
+            TextView reviewLabel = (TextView) findViewById(R.id.label_reviews_id);
+            reviewDivider1.setVisibility(View.VISIBLE);
+            reviewDivider2.setVisibility(View.VISIBLE);
+            reviewLabel.setVisibility(View.VISIBLE);
         }
-
-        TextView reviewLabel = (TextView) findViewById(R.id.label_reviews_id);
-        reviewLabel.setVisibility(View.VISIBLE);
     }
 
     private void launchTrailerIntent(int trailerIndex) {
